@@ -33,7 +33,7 @@ const expected_plate: ReadPlatesResults = {
     timestamp: '2022-02-02T14:10:07.461423Z',
 };
 
-test('Tests the plate recognizer plate-reader api', done => {
+test('Tests the plate recognizer plate-reader api', (done) => {
     const pr = new PlateRecognizer({
         apikey: process.env.PLATERECOGNIZER_API_KEY,
     });
@@ -42,20 +42,26 @@ test('Tests the plate recognizer plate-reader api', done => {
         mmc: true,
         regions: ['za'],
         image: './test/mardu.jpeg',
-    }).then((results) => {
-        expect(results.version).toBe(expected_plate.version);
-        expect(results.camera_id).toBe(expected_plate.camera_id);
-        expect(results.results).toStrictEqual(expected_plate.results as [ReadPlatesResult]);
-        done();
-    }).catch(done);
+    })
+        .then((results) => {
+            expect(results.version).toBe(expected_plate.version);
+            expect(results.camera_id).toBe(expected_plate.camera_id);
+            expect(results.results).toStrictEqual(
+                expected_plate.results as [ReadPlatesResult]
+            );
+            done();
+        })
+        .catch(done);
 });
 
-test('Tests the plate recognizer statistics api', done => {
+test('Tests the plate recognizer statistics api', (done) => {
     const pr = new PlateRecognizer({
         apikey: process.env.PLATERECOGNIZER_API_KEY,
     });
-    pr.Statistics().then((results) => {
-        expect(results).toBeDefined();
-        done();
-    }).catch(done);
+    pr.Statistics()
+        .then((results) => {
+            expect(results).toBeDefined();
+            done();
+        })
+        .catch(done);
 });

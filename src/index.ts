@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import FormData from 'form-data';
 import { createReadStream } from 'fs';
 import type { PathLike } from 'fs';
@@ -185,7 +185,8 @@ class PlateRecognizer {
         logger(`statistics opening to ${uri}`);
         try {
             const response = await this._axios.get(uri);
-            const finalValue: StatisticResults = response.data as StatisticResults;
+            const finalValue: StatisticResults =
+                response.data as StatisticResults;
             logger(`statistics got final value: \r\n%O`, finalValue);
             return finalValue;
         } catch (error) {

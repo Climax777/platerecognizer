@@ -26,4 +26,6 @@ tsconfig.json
 .env
 .env.example
 
+
+.yarn
 yarn.lock

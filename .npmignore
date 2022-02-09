@@ -1,1 +1,4 @@
 /src
+/test
+/dist/*.test.js
+/coverage

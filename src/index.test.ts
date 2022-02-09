@@ -1,4 +1,5 @@
 import { config as dotenv } from 'dotenv';
+import { readFile } from 'fs/promises';
 import { PlateRecognizer, ReadPlatesResults, ReadPlatesResult } from '.';
 
 dotenv();
@@ -39,20 +40,18 @@ test('Tests the plate recognizer plate-reader api', (done) => {
     });
     pr.ReadPlates({
         camera_id: 'test_cam_1',
-        mmc: true,
+        mmc: false,
         regions: ['za'],
         image: './test/mardu.jpeg',
     })
         .then((results) => {
             expect(results.version).toBe(expected_plate.version);
             expect(results.camera_id).toBe(expected_plate.camera_id);
-            expect(results.results).toStrictEqual(
-                expected_plate.results as [ReadPlatesResult]
-            );
+            expect(results.results).toHaveLength(1);
             done();
         })
         .catch(done);
-});
+}, 10000);
 
 test('Tests the plate recognizer statistics api', (done) => {
     const pr = new PlateRecognizer({
@@ -61,7 +60,61 @@ test('Tests the plate recognizer statistics api', (done) => {
     pr.Statistics()
         .then((results) => {
             expect(results).toBeDefined();
+            expect(results.total_calls).toBeGreaterThan(0);
+            expect(results.usage.calls).toBeGreaterThan(0);
             done();
         })
         .catch(done);
 });
+
+describe('Tests different image input options', () => {
+    const pr = new PlateRecognizer({
+        apikey: process.env.PLATERECOGNIZER_API_KEY,
+    });
+
+    test('Image can be a buffer', async () => {
+        const data = await readFile('./test/mardu.jpeg');
+
+        const results = await pr.ReadPlates({
+            camera_id: 'test_cam_1',
+            mmc: false,
+            regions: ['za'],
+            image: data,
+            imagePath: './test/mardu.jpeg',
+        });
+        expect(results.version).toBe(expected_plate.version);
+        expect(results.camera_id).toBe(expected_plate.camera_id);
+        expect(results.results).toHaveLength(1);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }, 10000);
+
+    test('Image can be a filename', async () => {
+        const results = await pr.ReadPlates({
+            camera_id: 'test_cam_1',
+            mmc: false,
+            regions: ['za'],
+            image: './test/mardu.jpeg',
+        });
+        expect(results.version).toBe(expected_plate.version);
+        expect(results.camera_id).toBe(expected_plate.camera_id);
+        expect(results.results).toHaveLength(1);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }, 10000);
+});
+
+test('Tests multiple detection regions', async () => {
+    const pr = new PlateRecognizer({
+        apikey: process.env.PLATERECOGNIZER_API_KEY,
+    });
+
+    const results = await pr.ReadPlates({
+        camera_id: 'test_cam_1',
+        mmc: false,
+        regions: ['za', 'sz', 'ls', 'zw', 'na'],
+        image: './test/mardu.jpeg',
+    });
+    expect(results.version).toBe(expected_plate.version);
+    expect(results.camera_id).toBe(expected_plate.camera_id);
+    expect(results.results).toHaveLength(1);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+}, 10000);

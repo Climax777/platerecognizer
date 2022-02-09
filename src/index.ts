@@ -26,6 +26,7 @@ export interface PlateRecognizerConfig {
 export interface ReadPlatesOptions {
     regions?: Array<string>;
     image: PathLike | Buffer;
+    imagePath?: PathLike;
     mmc?: boolean;
     camera_id?: string;
 }
@@ -135,13 +136,18 @@ class PlateRecognizer {
         options: ReadPlatesOptions
     ): Promise<ReadPlatesResults> {
         const fd = new FormData();
-        if (options.image instanceof Buffer) fd.append('upload', options.image);
-        else {
+        if (options.image instanceof Buffer) {
+            fd.append('upload', options.image, {
+                filename: options.imagePath
+                    ? options.imagePath.toString()
+                    : 'upload.jpg',
+            });
+        } else {
             fd.append('upload', createReadStream(options.image));
         }
         if (options.mmc) fd.append('mmc', 'true');
         if (options.regions === undefined) {
-            for (const key in this._config.defaultRegions) {
+            for (const key of this._config.defaultRegions) {
                 if (
                     Object.prototype.hasOwnProperty.call(
                         this._config.defaultRegions,
@@ -158,14 +164,10 @@ class PlateRecognizer {
         const uri = combineURLs(this._config.url, '/plate-reader');
         logger(`plate-reader opening to ${uri}`);
         try {
-            const response = await this._axios.post(
-                uri,
-                fd,
-                { headers: fd.getHeaders() }
-            );
-            logger(
-                `plate-reader: ${response.statusText}`
-            );
+            const response = await this._axios.post(uri, fd, {
+                headers: fd.getHeaders(),
+            });
+            logger(`plate-reader: ${response.statusText}`);
             const finalValue: ReadPlatesResults =
                 response.data as ReadPlatesResults;
             logger(`plate-reader got final value: \r\n%O`, finalValue);

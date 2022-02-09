@@ -1,4 +1,29 @@
 /src
 /test
 /dist/*.test.js
+/dist/*.test.map.js
 /coverage
+jest.config.js
+
+#build tools
+.travis.yml
+.jenkins.yml
+.codeclimate.yml
+
+#linters
+.jscsrc
+.jshintrc
+.eslintrc*
+.prettierrc*
+
+tsconfig.json
+
+#editor settings
+.idea
+.editorconfig
+.vscode
+
+.env
+.env.example
+
+yarn.lock

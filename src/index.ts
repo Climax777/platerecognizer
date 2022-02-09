@@ -10,7 +10,9 @@ const logger = debug('platerecognizer');
 export const DEFAULT_URI = 'https://api.platerecognizer.com/v1';
 function combineURLs(baseURL: string, relativeURL: string): string {
     return relativeURL
-        ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+        ? (baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL) +
+        '/' +
+        relativeURL.replace(/^\/+/, '')
         : baseURL;
 }
 

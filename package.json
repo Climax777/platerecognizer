@@ -1,6 +1,6 @@
 {
     "name": "platerecognizer-client",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "An unofficial client for the PlateRecognizer API",
     "main": "dist/index.js",
     "module": "main.js",
@@ -8,7 +8,9 @@
         "start": "tsc && node dist/index.js",
         "build": "tsc",
         "lint": "eslint .",
-        "test": "tsc && jest"
+        "test": "tsc && jest",
+        "version": "git add -u",
+        "postversion": "git push && git push --tags"
     },
     "repository": {
         "type": "git",
@@ -31,9 +33,7 @@
         "axios": "^0.25.0",
         "debug": "^4.3.3",
         "form-data": "^4.0.0",
-        "install": "^0.13.0",
-        "lodash": "^4.17.21",
-        "npm": "^8.4.0"
+        "lodash": "^4.17.21"
     },
     "devDependencies": {
         "@types/debug": "^4.1.7",

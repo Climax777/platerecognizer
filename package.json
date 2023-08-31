@@ -1,6 +1,6 @@
 {
     "name": "platerecognizer-client",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "An unofficial client for the PlateRecognizer API",
     "main": "dist/index.js",
     "module": "main.js",

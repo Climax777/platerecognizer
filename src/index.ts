@@ -11,8 +11,8 @@ export const DEFAULT_URI = 'https://api.platerecognizer.com/v1';
 function combineURLs(baseURL: string, relativeURL: string): string {
     return relativeURL
         ? (baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL) +
-        '/' +
-        relativeURL.replace(/^\/+/, '')
+              '/' +
+              relativeURL.replace(/^\/+/, '')
         : baseURL;
 }
 
@@ -26,10 +26,15 @@ export interface PlateRecognizerConfig {
 }
 
 export interface ReadPlatesOptions {
+    /** List of regions to match the license plate patter of. */
     regions?: Array<string>;
+    /** The image to upload. */
     image: PathLike | Buffer;
+    /** The path of the image. */
     imagePath?: PathLike;
+    /** Whether to predict the vehicle model, make, orientation and color. */
     mmc?: boolean;
+    /** Unique camera identifier. */
     camera_id?: string;
 }
 
@@ -41,19 +46,27 @@ export interface DetectionBox {
 }
 
 export interface RegionResult {
+    /** Region of the license plate. */
     code: string;
+    /** Confidence level for license plate region. */
     score: number;
 }
 
 export interface VehicleResult {
+    /** Vehicle type prediction. */
     type: string;
+    /** Confidence level for vehicle type prediciton. Set to 0 if no vehicle is found. */
     score: number;
+    /** Bounding box for the vehicle. */
     box: DetectionBox;
 }
 
 export interface ModelMakeResult {
+    /** Vehicle make prediction. */
     make: string;
+    /** Vehicle model prediction. */
     model: string;
+    /** Confidence level for vehicle make and model prediction. */
     score: number;
 }
 
@@ -70,30 +83,45 @@ export type VehicleColor =
     | string;
 
 export interface ColorResult {
+    /** Vehicle color prediction. */
     color: VehicleColor;
+    /** Confidence level for vehicle color prediction. */
     score: number;
 }
 export type Orientation = 'Front' | 'Rear' | 'Unknown' | string;
 export interface OrientationResult {
+    /** The vehicle's predicted orientation. `'Front'`, `'Rear'` or '`Unknown`'. */
     orientation: Orientation;
+    /** Confidence level for vehicle orientation prediction. */
     score: number;
 }
 
 export interface PlateCandidate {
+    /** Text of the license plate. */
     plate: string;
+    /** Confidence level for reading the license plate text. A fraction between 0 and 1. */
     score: number;
 }
 
 export interface ReadPlatesResult {
     box: DetectionBox;
+    /** Text of the license plate. */
     plate: string;
+    /** License plate region result. */
     region?: RegionResult;
+    /** License plate vehicle result. */
     vehicle?: VehicleResult;
+    /** Confidence level for reading the license plate text. A fraction between 0 and 1. */
     score: number;
+    /** List of predictions for the license plate value. The first element is the top prediction. */
     candidates: Array<PlateCandidate>;
+    /** Confidence level for plate detection. A fraction between 0 and 1. */
     dscore: number;
+    /** Vehicle model and make result. */
     model_make?: Array<ModelMakeResult>;
+    /** Vehicle color result. */
     color?: Array<ColorResult>;
+    /** Vehicle orientation result. */
     orientation?: Array<OrientationResult>;
 }
 export interface ReadPlatesResults {
@@ -102,6 +130,7 @@ export interface ReadPlatesResults {
     version: number;
     camera_id?: string;
     filename: string;
+    /** List of license plate results. */
     results: Array<ReadPlatesResult>;
 }
 
@@ -148,19 +177,13 @@ class PlateRecognizer {
             fd.append('upload', createReadStream(options.image));
         }
         if (options.mmc) fd.append('mmc', 'true');
-        if (options.regions === undefined) {
-            for (const key of this._config.defaultRegions) {
-                if (
-                    Object.prototype.hasOwnProperty.call(
-                        this._config.defaultRegions,
-                        key
-                    )
-                ) {
-                    const element = this._config.defaultRegions[key];
-                    fd.append('regions', element);
-                }
-            }
+
+        if (options.regions === undefined)
+            options.regions = this._config.defaultRegions;
+        for (const key of options.regions) {
+            fd.append('regions', key);
         }
+
         if (options.camera_id !== undefined && options.camera_id.length > 0)
             fd.append('camera_id', options.camera_id);
         const uri = combineURLs(this._config.url, '/plate-reader');
